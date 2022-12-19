@@ -29,6 +29,7 @@ func printBoard(board boardType) {
 	}
 }
 
+// getCellCoords prompts the user to enter coordiantes of a particular cell, and returns the cell's coordinates, or an error
 func getCellCoords() (x, y int, err error) {
 	prompt := promptui.Prompt{
 		Label: "Please enter the coordinates of the cell you'd like to play in (e.g. A1):",
@@ -70,17 +71,19 @@ func getCellCoords() (x, y int, err error) {
 	firstChar := unicode.ToUpper(rune(coords[0]))
 	secondChar, _ := strconv.ParseInt(string(coords[1]), 10, 64)
 
-	// set x variable
-	if firstChar == []rune("A")[0] {
-		x = 0
-	} else if firstChar == []rune("B")[0] {
-		x = 1
-	} else if firstChar == []rune("C")[0] {
-		x = 2
-	}
+	if err != nil {
+		// set x variable
+		if firstChar == []rune("A")[0] {
+			x = 0
+		} else if firstChar == []rune("B")[0] {
+			x = 1
+		} else if firstChar == []rune("C")[0] {
+			x = 2
+		}
 
-	// set y variable
-	y = int(secondChar) - 1
+		// set y variable
+		y = int(secondChar) - 1
+	}
 
 	return // naked return
 }
