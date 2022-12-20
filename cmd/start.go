@@ -7,8 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"strconv"
-	"unicode"
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
@@ -33,56 +31,30 @@ func printBoard(board boardType) {
 // getCellCoords prompts the user to enter coordiantes of a particular cell, and returns the cell's coordinates, or an error.
 // It takes an input of the current board, so it can throw an error if the selected coords have already been played.
 func getCellCoords(board boardType) (x, y int, err error) {
-	validate := func(input string) error {
-		if len(input) == 0 {
-			return errors.New("no cell coordinates provided")
-		}
-		if len(input) != 2 {
-			return errors.New("cell coordiantes should be two characters long")
-		}
-		if !unicode.IsLetter(rune(input[0])) {
-			return errors.New("first coordinate should be a letter")
-		}
-		if !unicode.IsNumber(rune(input[1])) {
-			return errors.New("second coordinate should be a number")
-		}
-		firstChar := unicode.ToUpper(rune(input[0]))
-		if firstChar != []rune("A")[0] && firstChar != []rune("B")[0] && firstChar != []rune("C")[0] {
-			return errors.New("first coordiante should be A, B or C")
-		}
-		secondChar, errWhenConvertingSecondChar := strconv.ParseInt(string(input[1]), 10, 64)
-		if errWhenConvertingSecondChar != nil {
-			return errors.New("error when converting second coordinate to a number")
-		}
-		if secondChar != 1 && secondChar != 2 && secondChar != 3 {
-			return errors.New("second coordinate should be 1, 2, or 3")
-		}
-		return nil
-	}
 
-	prompt := promptui.Prompt{
-		Label:    "Please enter the coordinates of the cell you'd like to play in (e.g. A1)",
-		Validate: validate,
+	promptCol := promptui.Select{
+		Label: "Column",
+		Items: []string{
+			"A", "B", "C",
+		},
 	}
+	x, _, errCol := promptCol.Run()
 
-	coords, err := prompt.Run()
+	promptRow := promptui.Select{
+		Label: "Run",
+		Items: []string{
+			"1", "2", "3",
+		},
+	}
+	y, _, errRow := promptRow.Run()
+
+	if errCol != nil {
+		err = errCol
+	} else if errRow != nil {
+		err = errRow
+	}
 
 	if err == nil {
-		firstChar := unicode.ToUpper(rune(coords[0]))
-		secondChar, _ := strconv.ParseInt(string(coords[1]), 10, 64)
-
-		// set x variable
-		if firstChar == []rune("A")[0] {
-			x = 0
-		} else if firstChar == []rune("B")[0] {
-			x = 1
-		} else if firstChar == []rune("C")[0] {
-			x = 2
-		}
-
-		// set y variable
-		y = int(secondChar) - 1
-
 		if board[y][x] != "-" {
 			err = errors.New("selected coords have already been played")
 		}
