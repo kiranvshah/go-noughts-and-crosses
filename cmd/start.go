@@ -93,6 +93,121 @@ func getCellCoords(board boardType) (x, y int, err error) {
 	return // naked return
 }
 
+// boardHasThreeInARow, given an input of a boardType, returns a bool representing whether someone has won on the board,
+// and a string representing the winner ("o", "x" or "")
+func boardHasThreeInARow(board boardType) (hasThreeInRow bool, winner string) {
+
+	// check for horizontal three in a row
+	for _, row := range board {
+		oCount := 0
+		xCount := 0
+		for _, cellValue := range row {
+			if cellValue == "o" {
+				oCount++
+			} else if cellValue == "x" {
+				xCount++
+			}
+		}
+		if oCount == 3 {
+			hasThreeInRow = true
+			winner = "o"
+			return
+		}
+		if xCount == 3 {
+			hasThreeInRow = true
+			winner = "x"
+			return
+		}
+	}
+
+	// check for vertical three in a row
+	for colIndex := 0; colIndex < 3; colIndex++ {
+		oCount := 0
+		xCount := 0
+		for _, row := range board {
+			cellValue := row[colIndex]
+			if cellValue == "o" {
+				oCount++
+			} else if cellValue == "x" {
+				xCount++
+			}
+		}
+		if oCount == 3 {
+			hasThreeInRow = true
+			winner = "o"
+			return
+		}
+		if xCount == 3 {
+			hasThreeInRow = true
+			winner = "x"
+			return
+		}
+	}
+
+	{ // check for "\" diagonal
+		oCount := 0
+		xCount := 0
+		for rowAndColIndex := 0; rowAndColIndex < 3; rowAndColIndex++ {
+			cellValue := board[rowAndColIndex][rowAndColIndex]
+			if cellValue == "o" {
+				oCount++
+			} else if cellValue == "x" {
+				xCount++
+			}
+		}
+		if oCount == 3 {
+			hasThreeInRow = true
+			winner = "o"
+			return
+		}
+		if xCount == 3 {
+			hasThreeInRow = true
+			winner = "x"
+			return
+		}
+	}
+
+	{ // check for "/" diagonal
+		oCount := 0
+		xCount := 0
+		for rowIndex := 0; rowIndex < 3; rowIndex++ {
+			colIndex := 2 - rowIndex
+			cellValue := board[rowIndex][colIndex]
+			if cellValue == "o" {
+				oCount++
+			} else if cellValue == "x" {
+				xCount++
+			}
+		}
+		if oCount == 3 {
+			hasThreeInRow = true
+			winner = "o"
+			return
+		}
+		if xCount == 3 {
+			hasThreeInRow = true
+			winner = "x"
+			return
+		}
+	}
+
+	return
+}
+
+// boardIsDraw, given an input of a boardType, returns a bool representing whether the game is a draw and all the spaces are full
+func boardIsDraw(board boardType) bool {
+	blankSpaceCount := 0
+	for _, row := range board {
+		for _, cellValue := range row {
+			if cellValue == "-" {
+				blankSpaceCount++
+			}
+		}
+	}
+
+	return blankSpaceCount == 0
+}
+
 // startCmd represents the start command
 var startCmd = &cobra.Command{
 	Use:   "start",
@@ -103,6 +218,47 @@ var startCmd = &cobra.Command{
 
 		board := boardType{{"-", "-", "-"}, {"-", "-", "-"}, {"-", "-", "-"}}
 		printBoard(board)
+
+		nextToMove := "x"
+
+		for {
+
+			// check for winner
+			isWinner, winner := boardHasThreeInARow(board)
+			if isWinner {
+				fmt.Printf("%s wins!\n", winner)
+				return
+			}
+
+			// check for draw
+			if boardIsDraw(board) {
+				fmt.Println("Draw! Game over")
+				return
+			}
+
+			// player has turn
+			fmt.Printf("%s to move.", nextToMove)
+			successfullyGotCoords := false
+			for !successfullyGotCoords {
+				x, y, err := getCellCoords(board)
+				if err != nil {
+					fmt.Printf("Error getting coordiantes: %s", err)
+				} else {
+					// place go
+					successfullyGotCoords = true
+					board[y][x] = nextToMove
+
+				}
+			}
+
+			// switch next player to have turn
+			if nextToMove == "x" {
+				nextToMove = "o"
+			} else {
+				nextToMove = "x"
+			}
+
+		}
 
 	},
 }
