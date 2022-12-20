@@ -205,12 +205,12 @@ var startCmd = &cobra.Command{
 
 			// player has turn
 			printBoard(board)
-			fmt.Printf("%s to move.", nextToMove)
+			fmt.Printf("%s to move.\n", nextToMove)
 			successfullyGotCoords := false
 			for !successfullyGotCoords {
 				x, y, err := getCellCoords(board)
 				if err != nil {
-					fmt.Printf("Error getting coordiantes: %s", err)
+					fmt.Printf("Error getting coordiantes: %s\n", err)
 				} else {
 					// place go
 					successfullyGotCoords = true
