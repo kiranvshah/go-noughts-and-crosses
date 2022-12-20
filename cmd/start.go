@@ -39,6 +39,7 @@ func getCellCoords(board boardType) (x, y int, humanFriendlyCoords string, err e
 		Items: []string{
 			"A", "B", "C",
 		},
+		HideSelected: true,
 	}
 	x, xHumanFriendly, errCol := promptCol.Run()
 	if errCol != nil {
@@ -51,12 +52,15 @@ func getCellCoords(board boardType) (x, y int, humanFriendlyCoords string, err e
 		Items: []string{
 			"1", "2", "3",
 		},
+		HideSelected: true,
 	}
 	y, yHumanFriendly, errRow := promptRow.Run()
 	if errRow != nil {
 		err = errRow
 		return
 	}
+
+	fmt.Println("") // https://github.com/manifoldco/promptui/issues/180#issuecomment-882836869
 
 	if board[y][x] != "-" {
 		err = errors.New("selected coords have already been played")
@@ -258,7 +262,7 @@ var startCmd = &cobra.Command{
 					x, y, humanFriendlyCoords, err := getCellCoords(board)
 					if err != nil {
 						if err.Error() == "selected coords have already been played" {
-							fmt.Println("Selected coords have already been played. Try again.")
+							fmt.Print("Selected coords have already been played. Try again.\n")
 						} else {
 							fmt.Printf("Error getting coordiantes: %s\n", err)
 							return
