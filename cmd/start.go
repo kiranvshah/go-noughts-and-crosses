@@ -69,7 +69,7 @@ func getCellCoords(board boardType) (x, y int, err error) {
 	firstChar := unicode.ToUpper(rune(coords[0]))
 	secondChar, _ := strconv.ParseInt(string(coords[1]), 10, 64)
 
-	if err != nil {
+	if err == nil {
 		// set x variable
 		if firstChar == []rune("A")[0] {
 			x = 0
