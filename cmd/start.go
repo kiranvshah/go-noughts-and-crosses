@@ -183,8 +183,6 @@ var startCmd = &cobra.Command{
 	Short: "Starts a game of noughts and crosses",
 	Long:  `Starts a game of noughts and crosses to be played on the command line`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("start called")
-
 		board := boardType{{"-", "-", "-"}, {"-", "-", "-"}, {"-", "-", "-"}}
 		nextToMove := "x"
 
