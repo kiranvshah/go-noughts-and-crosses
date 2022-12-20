@@ -6,7 +6,6 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"log"
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
@@ -210,7 +209,6 @@ var startCmd = &cobra.Command{
 			successfullyGotCoords := false
 			for !successfullyGotCoords {
 				x, y, err := getCellCoords(board)
-				log.Printf("x=%d, y=%d, err=%v", x, y, err)
 				if err != nil {
 					fmt.Printf("Error getting coordiantes: %s", err)
 				} else {
