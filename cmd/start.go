@@ -40,7 +40,7 @@ func getCellCoords(board boardType) (x, y int, err error) {
 	x, _, errCol := promptCol.Run()
 
 	promptRow := promptui.Select{
-		Label: "Run",
+		Label: "Row",
 		Items: []string{
 			"1", "2", "3",
 		},
