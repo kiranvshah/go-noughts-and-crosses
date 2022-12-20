@@ -29,8 +29,9 @@ func printBoard(board boardType) {
 	}
 }
 
-// getCellCoords prompts the user to enter coordiantes of a particular cell, and returns the cell's coordinates, or an error
-func getCellCoords() (x, y int, err error) {
+// getCellCoords prompts the user to enter coordiantes of a particular cell, and returns the cell's coordinates, or an error.
+// It takes an input of the current board, so it can throw an error if the selected coords have already been played.
+func getCellCoords(board boardType) (x, y int, err error) {
 	prompt := promptui.Prompt{
 		Label: "Please enter the coordinates of the cell you'd like to play in (e.g. A1):",
 		Templates: &promptui.PromptTemplates{
@@ -83,6 +84,10 @@ func getCellCoords() (x, y int, err error) {
 
 		// set y variable
 		y = int(secondChar) - 1
+
+		if board[y][x] != "-" {
+			err = errors.New("selected coords have already been played")
+		}
 	}
 
 	return // naked return
