@@ -28,9 +28,9 @@ func printBoard(board boardType) {
 	}
 }
 
-// getCellCoords prompts the user to enter coordiantes of a particular cell, and returns the cell's coordinates, or an error.
+// getCellCoords prompts the user to enter coordiantes of a particular cell, and returns the cell's coordinates (including human friendly ones, e.g. B3), or an error.
 // It takes an input of the current board, so it can throw an error if the selected coords have already been played.
-func getCellCoords(board boardType) (x, y int, err error) {
+func getCellCoords(board boardType) (x, y int, humanFriendlyCoords string, err error) {
 
 	promptCol := promptui.Select{
 		Label: "Column",
@@ -38,7 +38,7 @@ func getCellCoords(board boardType) (x, y int, err error) {
 			"A", "B", "C",
 		},
 	}
-	x, _, errCol := promptCol.Run()
+	x, xHumanFriendly, errCol := promptCol.Run()
 	if errCol != nil {
 		err = errCol
 		return
@@ -50,17 +50,17 @@ func getCellCoords(board boardType) (x, y int, err error) {
 			"1", "2", "3",
 		},
 	}
-	y, _, errRow := promptRow.Run()
+	y, yHumanFriendly, errRow := promptRow.Run()
 	if errRow != nil {
 		err = errRow
 		return
 	}
 
-	if err == nil {
-		if board[y][x] != "-" {
-			err = errors.New("selected coords have already been played")
-		}
+	if board[y][x] != "-" {
+		err = errors.New("selected coords have already been played")
 	}
+
+	humanFriendlyCoords = xHumanFriendly + yHumanFriendly
 
 	return // naked return
 }
@@ -207,13 +207,14 @@ var startCmd = &cobra.Command{
 			// player has turn
 			printBoard(board)
 			fmt.Printf("%s to move.\n\n", nextToMove)
-			x, y, err := getCellCoords(board)
+			x, y, humanFriendlyCoords, err := getCellCoords(board)
 			if err != nil {
 				fmt.Printf("Error getting coordiantes: %s\n", err)
 				return
 			} else {
 				// place go
 				board[y][x] = nextToMove
+				fmt.Printf("Placed %s at %s.\n\n\n\n\n", nextToMove, humanFriendlyCoords)
 
 			}
 
