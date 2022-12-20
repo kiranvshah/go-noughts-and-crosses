@@ -6,6 +6,8 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"math/rand"
+	"time"
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
@@ -63,6 +65,32 @@ func getCellCoords(board boardType) (x, y int, humanFriendlyCoords string, err e
 	humanFriendlyCoords = xHumanFriendly + yHumanFriendly
 
 	return // naked return
+}
+
+// computerGivesCellCoords simulates a computer's turn by providing the cell coords that it is going to play.
+func computerGivesCellCoords(board boardType) (x, y int, humanFriendlyCoords string) {
+	availableCoords := make([][2]int, 0, 9)
+	for rowIndex, row := range board {
+		for colIndex, cellValue := range row {
+			if cellValue == "-" {
+				availableCoords = append(availableCoords, [2]int{rowIndex, colIndex})
+			}
+		}
+	}
+
+	selectedCoords := availableCoords[rand.Intn(len(availableCoords))]
+	x, y = selectedCoords[0], selectedCoords[1]
+
+	if x == 0 {
+		humanFriendlyCoords += "A"
+	} else if x == 1 {
+		humanFriendlyCoords += "B"
+	} else if x == 2 {
+		humanFriendlyCoords += "C"
+	}
+	humanFriendlyCoords += fmt.Sprintf("%d", y+1)
+
+	return
 }
 
 // boardHasThreeInARow, given an input of a boardType, returns a bool representing whether someone has won on the board,
@@ -186,6 +214,16 @@ var startCmd = &cobra.Command{
 	Short: "Starts a game of noughts and crosses",
 	Long:  `Starts a game of noughts and crosses to be played on the command line`,
 	Run: func(cmd *cobra.Command, args []string) {
+		againstComputer, errWithAgainstComputerFlag := cmd.Flags().GetBool("against-computer")
+		if errWithAgainstComputerFlag != nil {
+			fmt.Printf("Error with against-computer flag: %s\n", errWithAgainstComputerFlag)
+		}
+		if againstComputer {
+			fmt.Print("Starting singleplayer game against computer. You are o.\n\n")
+		} else {
+			fmt.Print("Starting two-player game.\n\n")
+		}
+
 		board := boardType{{"-", "-", "-"}, {"-", "-", "-"}, {"-", "-", "-"}}
 		nextToMove := "x"
 
@@ -194,34 +232,43 @@ var startCmd = &cobra.Command{
 			// check for winner
 			isWinner, winner := boardHasThreeInARow(board)
 			if isWinner {
+				printBoard(board)
 				fmt.Printf("%s wins!\n", winner)
 				return
 			}
 
 			// check for draw
 			if boardIsDraw(board) {
+				printBoard(board)
 				fmt.Println("Draw! Game over")
 				return
 			}
 
-			// player has turn
-			printBoard(board)
-			fmt.Printf("%s to move.\n\n", nextToMove)
-			carryOnTryingToGetCoords := true
-			for carryOnTryingToGetCoords {
-				x, y, humanFriendlyCoords, err := getCellCoords(board)
-				if err != nil {
-					if err.Error() == "selected coords have already been played" {
-						fmt.Println("Selected coords have already been played. Try again.")
+			if nextToMove == "o" && againstComputer {
+				// computer has turn
+				x, y, humanFriendlyCoords := computerGivesCellCoords(board)
+				board[y][x] = nextToMove
+				fmt.Printf("Computer placed %s at %s.\n\n\n\n\n", nextToMove, humanFriendlyCoords)
+			} else {
+				// player has turn
+				printBoard(board)
+				fmt.Printf("%s to move.\n\n", nextToMove)
+				carryOnTryingToGetCoords := true
+				for carryOnTryingToGetCoords {
+					x, y, humanFriendlyCoords, err := getCellCoords(board)
+					if err != nil {
+						if err.Error() == "selected coords have already been played" {
+							fmt.Println("Selected coords have already been played. Try again.")
+						} else {
+							fmt.Printf("Error getting coordiantes: %s\n", err)
+							return
+						}
 					} else {
-						fmt.Printf("Error getting coordiantes: %s\n", err)
-						return
+						// place go
+						board[y][x] = nextToMove
+						fmt.Printf("Placed %s at %s.\n\n\n\n\n", nextToMove, humanFriendlyCoords)
+						carryOnTryingToGetCoords = false
 					}
-				} else {
-					// place go
-					board[y][x] = nextToMove
-					fmt.Printf("Placed %s at %s.\n\n\n\n\n", nextToMove, humanFriendlyCoords)
-					carryOnTryingToGetCoords = false
 				}
 			}
 
@@ -238,6 +285,8 @@ var startCmd = &cobra.Command{
 }
 
 func init() {
+	rand.Seed(time.Now().UnixNano())
+
 	rootCmd.AddCommand(startCmd)
 
 	// Here you will define your flags and configuration settings.
@@ -249,4 +298,5 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// startCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	startCmd.Flags().BoolP("against-computer", "C", false, "Whether one player (o) should be controlled by the computer.")
 }
