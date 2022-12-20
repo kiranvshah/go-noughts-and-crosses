@@ -207,15 +207,22 @@ var startCmd = &cobra.Command{
 			// player has turn
 			printBoard(board)
 			fmt.Printf("%s to move.\n\n", nextToMove)
-			x, y, humanFriendlyCoords, err := getCellCoords(board)
-			if err != nil {
-				fmt.Printf("Error getting coordiantes: %s\n", err)
-				return
-			} else {
-				// place go
-				board[y][x] = nextToMove
-				fmt.Printf("Placed %s at %s.\n\n\n\n\n", nextToMove, humanFriendlyCoords)
-
+			carryOnTryingToGetCoords := true
+			for carryOnTryingToGetCoords {
+				x, y, humanFriendlyCoords, err := getCellCoords(board)
+				if err != nil {
+					if err.Error() == "selected coords have already been played" {
+						fmt.Println("Selected coords have already been played. Try again.")
+					} else {
+						fmt.Printf("Error getting coordiantes: %s\n", err)
+						return
+					}
+				} else {
+					// place go
+					board[y][x] = nextToMove
+					fmt.Printf("Placed %s at %s.\n\n\n\n\n", nextToMove, humanFriendlyCoords)
+					carryOnTryingToGetCoords = false
+				}
 			}
 
 			// switch next player to have turn
