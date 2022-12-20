@@ -16,6 +16,7 @@ type boardType [3][3]string
 
 // printBoard displays a boardType by printing it to the command line
 func printBoard(board boardType) {
+	// fmt.Println("\033[H\033[2J    A B C")
 	fmt.Println("    A B C")
 	fmt.Println()
 	for rowIndex, row := range board {
@@ -38,6 +39,10 @@ func getCellCoords(board boardType) (x, y int, err error) {
 		},
 	}
 	x, _, errCol := promptCol.Run()
+	if errCol != nil {
+		err = errCol
+		return
+	}
 
 	promptRow := promptui.Select{
 		Label: "Row",
@@ -46,11 +51,9 @@ func getCellCoords(board boardType) (x, y int, err error) {
 		},
 	}
 	y, _, errRow := promptRow.Run()
-
-	if errCol != nil {
-		err = errCol
-	} else if errRow != nil {
+	if errRow != nil {
 		err = errRow
+		return
 	}
 
 	if err == nil {
@@ -203,18 +206,15 @@ var startCmd = &cobra.Command{
 
 			// player has turn
 			printBoard(board)
-			fmt.Printf("%s to move.\n", nextToMove)
-			successfullyGotCoords := false
-			for !successfullyGotCoords {
-				x, y, err := getCellCoords(board)
-				if err != nil {
-					fmt.Printf("Error getting coordiantes: %s\n", err)
-				} else {
-					// place go
-					successfullyGotCoords = true
-					board[y][x] = nextToMove
+			fmt.Printf("%s to move.\n\n", nextToMove)
+			x, y, err := getCellCoords(board)
+			if err != nil {
+				fmt.Printf("Error getting coordiantes: %s\n", err)
+				return
+			} else {
+				// place go
+				board[y][x] = nextToMove
 
-				}
 			}
 
 			// switch next player to have turn
