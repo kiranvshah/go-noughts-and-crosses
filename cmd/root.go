@@ -13,11 +13,7 @@ import (
 var rootCmd = &cobra.Command{
 	Use:   "noughts-and-crosses",
 	Short: "Play noughts and crosses on the command line",
-	Long: `A CLI to play noughts and crosses, written in Go.
-
-Usage:
-  noughts-and-crosses [command]
-TODO: put more detailed instructions here once the app is built`,
+	Long:  "A CLI to play noughts and crosses, written in Go.",
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
