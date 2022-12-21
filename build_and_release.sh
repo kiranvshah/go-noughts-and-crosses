@@ -1,4 +1,4 @@
-rm -r binaries
+rm -rf binaries
 GOOS=darwin GOARCH=amd64 go build -o binaries/go-noughts-and-crosses-darwin-amd64
 GOOS=linux GOARCH=amd64 go build -o binaries/go-noughts-and-crosses-linux-amd64
 GOOS=windows GOARCH=amd64 go build -o binaries/go-noughts-and-crosses-windows-amd64.exe
